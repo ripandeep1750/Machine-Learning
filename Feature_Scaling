@@ -1,0 +1,54 @@
+++++++++++++++++++++++++++++++++Feature Scaling++++++++++++++++++++++++++++++++++++++++++++
+# importing libraries
+import pandas as pd
+import scipy
+import numpy as np
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+df = pd.read_csv("/content/drive/MyDrive/structural virality/dataset/nytpopular.csv")
+print(df.head())
+
+like_label = list()
+for like in df['like_count']:
+    if like <= 285:
+        like_label.append('0')
+    else:
+        like_label.append('1')
+
+# Update this class label into the dataframe
+df = pd.concat([df.reset_index(drop=True), pd.DataFrame(like_label, columns=['popularity'])], axis=1)
+df.head(4)
+
+df.drop(labels=['url', 'date', 'bag_of_phrases', 'id', 'popularity'], axis = 1, inplace=True)
+
+# NORMALIZATION
+# Absolute Maximum Scaling--------------------------------------------------------------------------------------------------------------
+max_vals = np.max(np.abs(df))
+max_vals
+
+print((df - max_vals) / max_vals)
+
+# MinMax Scaling----------------------------------------------------------------------------------------------------------------------
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+scaled_data = scaler.fit_transform(df)
+scaled_df = pd.DataFrame(scaled_data, columns=df.columns)
+scaled_df.head()
+
+# Standardization
+# Z-Score Normalization----------------------------------------------------------------------------------------------------------------
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(df)
+scaled_df = pd.DataFrame(scaled_data, columns=df.columns)
+print(scaled_df.head())
+
+# Robust Scaling--------------------------------------------------------------------------------------------------------------------
+from sklearn.preprocessing import RobustScaler
+
+scaler = RobustScaler()
+scaled_data = scaler.fit_transform(df)
+scaled_df = pd.DataFrame(scaled_data, columns=df.columns)
+print(scaled_df.head())
