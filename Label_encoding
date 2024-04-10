@@ -1,0 +1,35 @@
++++++++++++++++++++++++++++LABEL ENCODING++++++++++++++++++++++++++++++++++++++++++++
+# To convert categorial data columns into numerical ones.
+
+# importing libraries
+import pandas as pd
+import scipy
+import numpy as np
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+df = pd.read_csv("/content/drive/MyDrive/ME/Datasets_For_Practise/iris.csv")
+print(df.head())
+
+df.info()
+
+df['species'].unique() 
+
+# Import label encoder 
+from sklearn import preprocessing 
+  
+# label_encoder object knows  
+# how to understand word labels. 
+label_encoder = preprocessing.LabelEncoder() 
+  
+# Encode labels in column 'species'. 
+df['species']= label_encoder.fit_transform(df['species']) 
+  
+df['species'].unique() 
+
+
+
+
+
+# THESE VALUES IN SPECIES ----------- >>>>>> ['setosa', 'versicolor', 'virginica'] ---------->>>>>>> becomes ------>>>>> [0, 1, 2]
