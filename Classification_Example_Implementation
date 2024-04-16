@@ -1,0 +1,102 @@
+++++++++++++++++++++++++++++++ Implementation of Classification Model in Machine Learning ++++++++++++++++++++++++++++++++++++++++++++++++++
+# Libaries import
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import matplotlib.pyplot as plt
+import seaborn as sns
+from copy import copy
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn import svm
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+data = pd.read_csv("/content/drive/MyDrive/structural virality/dataset/nytpopular.csv")
+data.head(n=4)
+
+data.drop(labels=['url', 'date', 'bag_of_phrases'], axis = 1, inplace=True)
+data.head(n=4)
+original_data = copy(data)
+
+like_label = list()
+for like in data['like_count']:
+    if like <= 285:
+        like_label.append('0')
+    else:
+        like_label.append('1')
+
+# Update this class label into the dataframe
+data = pd.concat([data.reset_index(drop=True), pd.DataFrame(like_label, columns=['popularity'])], axis=1)
+data.head(4)
+
+# Scale features using statistics that are robust to outliers.
+from sklearn.preprocessing import RobustScaler
+scaler = RobustScaler()
+# scalled all the feature selections aside populairty
+scalled_data = scaler.fit_transform(data.iloc[:, :-1])
+# update the dataframe back with the scalled data
+data.iloc[:, :-1] = scalled_data
+data['popularity'].value_counts()
+
+# Define feature variables (X) and target variable (y)
+X = data.drop('popularity', axis=1)  
+y = data['popularity']  
+# split into 70:30 ration
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 0)
+
+# GAUSSIAN NAIVE BAYES
+gnb = GaussianNB()
+# train the model
+gnb.fit(X_train, y_train)
+# make predictions
+gnb_pred = gnb.predict(X_test)
+# print the accuracy
+print("Accuracy of Gaussian Naive Bayes: ", accuracy_score(y_test, gnb_pred))
+# print other performance metrics
+print("Precision of Gaussian Naive Bayes: ", precision_score(y_test, gnb_pred, average='weighted'))
+print("Recall of Gaussian Naive Bayes: ", recall_score(y_test, gnb_pred, average='weighted'))
+print("F1-Score of Gaussian Naive Bayes: ", f1_score(y_test, gnb_pred, average='weighted'))
+OUTPUT----->
+Accuracy of Gaussian Naive Bayes:  0.9010989010989011
+Precision of Gaussian Naive Bayes:  0.9132755954978177
+Recall of Gaussian Naive Bayes:  0.9010989010989011
+F1-Score of Gaussian Naive Bayes:  0.9002320681872811
+
+# DECISION TREE CLASSIFIER
+dt = DecisionTreeClassifier(random_state=0)
+# train the model
+dt.fit(X_train, y_train)
+# make predictions
+dt_pred = dt.predict(X_test)
+# print the accuracy
+print("Accuracy of Decision Tree Classifier: ", accuracy_score(y_test, dt_pred))
+# print other performance metrics
+print("Precision of Decision Tree Classifier: ", precision_score(y_test, dt_pred, average='weighted'))
+print("Recall of Decision Tree Classifier: ", recall_score(y_test, dt_pred, average='weighted'))
+print("F1-Score of Decision Tree Classifier: ", f1_score(y_test, dt_pred, average='weighted'))
+OUTPUT----->
+Accuracy of Decision Tree Classifier:  1.0
+Precision of Decision Tree Classifier:  1.0
+Recall of Decision Tree Classifier:  1.0
+F1-Score of Decision Tree Classifier:  1.0
+
+# SUPPORT VECTOR MACHINE
+svm_clf = svm.SVC(kernel='linear')  # Linear Kernel
+# train the model
+svm_clf.fit(X_train, y_train)
+# make predictions
+svm_clf_pred = svm_clf.predict(X_test)
+# print the accuracy
+print("Accuracy of Support Vector Machine: ", accuracy_score(y_test, svm_clf_pred))
+# print other performance metrics
+print("Precision of Support Vector Machine: ", precision_score(y_test, svm_clf_pred, average='weighted'))
+print("Recall of Support Vector Machine: ", recall_score(y_test, svm_clf_pred, average='weighted'))
+print("F1-Score of Support Vector Machine: ", f1_score(y_test, svm_clf_pred, average='weighted'))
+OUTPUT---->
+Accuracy of Support Vector Machine:  0.9952380952380953
+Precision of Support Vector Machine:  0.9952507839423029
+Recall of Support Vector Machine:  0.9952380952380953
+F1-Score of Support Vector Machine:  0.995237893919458
